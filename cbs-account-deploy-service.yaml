@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cbs-account-microservice-service
+  namespace: default
+spec:
+  selector:
+    app: cbs-account-microservice-selector
+  type: ClusterIP
+  ports:
+  - port: 8086
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  cbs-account-microservice-deployment
+  namespace: default
+  labels:
+    app:  cbs-account-microservice-deployment
+spec:
+  selector:
+    matchLabels:
+      app: cbs-account-microservice-selector
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      name: cbs-account-microservice-pod
+      labels:
+        app:  cbs-account-microservice-selector
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name:  cbs-account-microservice-container
+        image:  actdocker123/cbs-micro-service:Enfinity-AccountService-25.01.00.00.55
+        imagePullPolicy: IfNotPresent
+
+        # resources:
+        #   requests:
+        #     cpu: 2Gi
+        #     memory: 100Mi
+        #   limits:
+        #     cpu: 4Gi
+        #     memory: 100Mi
+
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: 8081
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        #   periodSeconds: 10
+
+        # startupProbe:
+        #   httpGet:
+        #   path: /actuator/health
+        #   port: 8081
+        #   failureThreshold: 5
+        #   periodSeconds: 10
+        #   initialDelaySeconds: 180
+        #   timeoutSeconds: 5
+
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "[ ! -f /opt/iamnotready ] || ls -ld /imready &>/dev/null"
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
+
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_SERVICE_IP
+          value: "$(CBS_ACCOUNT_MICROSERVICE_SERVICE_SERVICE_HOST)"
+        - name: TZ
+          value: "Asia/Calcutta"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        envFrom:
+          - configMapRef:
+              name: service-ip-config
+
+        volumeMounts: #bind mount with host
+        - mountPath: /opt/API_LOGS/cbs-enfinityAPI-accountservice ##mount path from container
+          name: apilogs
+      #          - name: ssl-config
+      #            mountPath: /opt/sslCertificate
+      #            readOnly: true
+      volumes:
+      - name: apilogs ##pass the same name as container mount name
+        hostPath:
+          path: /opt/API_LOGS/cbs-enfinityAPI-accountservice ##path from host machine       #changed
+      #        - name: ssl-config
+      #          hostPath:
+      #            path: /opt/sslCertificate
+      imagePullSecrets:
+      - name: cbs-enfinity #changed
+      terminationGracePeriodSeconds: 150
