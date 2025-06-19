@@ -5,9 +5,9 @@ pipeline {
         SONARQUBE_ENV = 'sonarqube'
     }
 
-    tools {
-        maven 'Maven3'   
-        jdk 'Jdk17'     
+    tools {  
+        jdk 'Jdk17' 
+        maven 'Maven3'
     }
 
     stages {
