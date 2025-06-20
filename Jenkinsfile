@@ -22,7 +22,7 @@ pipeline {
         stage('Copy API DATA to workspace') {
           steps {
            script {
-            sh 'cp -r /opt/jenkins_home/workspace/sample-project-1/API_DATA/ /opt/allservice_APIDATA'
+            sh 'cp -r /opt/jenkins_home/workspace/sample-project-1/API_DATA/ /opt/allservice_APIDATA/API_DATA'
          }
       }
   }
