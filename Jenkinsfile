@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE_ENV = 'sonarqube'
+        MICROSERVICE = 'MICROSERVICE'
     }
 
     tools {  
