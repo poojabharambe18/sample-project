@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE_ENV = 'sonarqube'
-        MICROSERVICE = 'MICROSERVICE'
+        MICROSERVICE = 'Enfinity-AccountService'
     }
 
     tools {  
@@ -20,13 +20,12 @@ pipeline {
             }
         }
         stage('Copy API DATA to workspace') {
-            steps {
-                script {
-                    sh 'cp -r /opt/allservice_APIDATA/${MICROSERVICE}/API_DATA/ ${WORKSPACE}/${MICROSERVICE}/'
-                }
-            }
-        }
-
+          steps {
+           script {
+            sh 'cp -r /opt/jenkins_home/workspace/sample-project-1/API_DATA/API_DATA/ /opt/allservice_APIDATA/${MICROSERVICE}/'
+         }
+      }
+  }
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
