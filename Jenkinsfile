@@ -18,11 +18,18 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Copy API DATA to workspace') {
+            steps {
+                script {
+                    sh 'cp -r /opt/allservice_APIDATA/${MICROSERVICE}/API_DATA/ ${WORKSPACE}/${MICROSERVICE}/'
+                }
+            }
+        }
 
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                withSonarQubeEnv("${SONARQUBE_ENV}") { 
                     sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=Enfinity-AccountService -DskipTests'
                 }
             }
